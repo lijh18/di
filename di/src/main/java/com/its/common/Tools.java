@@ -28,5 +28,12 @@ public class Tools {
 		}
 		influxDB.write(batchPoints);
 	}
-
+	public static long getMilliSecondFromUTCTime(String UTCTime){		
+		try { 
+			return UTCFormat.parse(UTCTime).getTime();
+		} catch (java.text.ParseException e) {
+			e.printStackTrace();
+			return 0;
+		}
+	}
 }
