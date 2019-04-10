@@ -30,7 +30,7 @@ public class ETL_MonitorDataToInfluxDB {
 	static{
         dbproperties = new Properties();
         try {
-			dbproperties.load(Kafka.class.getClassLoader().getResourceAsStream("db.properties"));
+			dbproperties.load(Kafka.class.getClassLoader().getResourceAsStream("common.properties"));
 		} catch (IOException e) {
 			e.printStackTrace();
 			
