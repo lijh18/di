@@ -1,0 +1,39 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>com.di</groupId>
+  <artifactId>di</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+  <build/>
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
+  <dependencies>
+    <dependency>
+      <groupId>org.apache.kafka</groupId>
+      <artifactId>kafka-clients</artifactId>
+      <version>0.11.0.0</version>
+    </dependency>
+    <dependency>
+           <groupId>org.apache.kafka</groupId>
+           <artifactId>kafka_2.10</artifactId>
+            <version>0.10.2.0</version>
+            <exclusions>
+            	<exclusion>
+            		<artifactId>slf4j-log4j12</artifactId>
+            		<groupId>org.slf4j</groupId>
+            	</exclusion>
+            </exclusions>
+    </dependency>     
+	<dependency>
+	    <groupId>org.influxdb</groupId>
+	    <artifactId>influxdb-java</artifactId>
+	    <version>2.6</version>
+	</dependency>
+    <dependency>  
+        <groupId>net.sf.json-lib</groupId>  
+        <artifactId>json-lib</artifactId>  
+        <version>2.2.3</version>  
+        <classifier>jdk15</classifier><!-- 指定jdk版本 -->  
+    </dependency>	    			      		    	       
+  </dependencies>   
+</project>
