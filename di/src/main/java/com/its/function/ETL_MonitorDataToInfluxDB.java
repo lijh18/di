@@ -47,14 +47,14 @@ public class ETL_MonitorDataToInfluxDB {
 		int consumerRecordNum=0;
 		int breakNum=0;
 		BatchPoints batchPoints = BatchPoints.database(dbproperties.getProperty("influxDB_database")).consistency(InfluxDB.ConsistencyLevel.ALL).build();
-		//Point.Builder point=null;
+		Point.Builder point=null;
 		System.out.println(System.currentTimeMillis());
 		Map<String, String> tagsMap = new HashMap<String, String>();
 		Map<String, Object> fieldsMap = new HashMap<String, Object>();
 		while (true) {
 			ConsumerRecords<String, String> records = consumer.poll(1000);
 			for (ConsumerRecord<String, String> record : records){
-				Point.Builder point=generateInfluxDBPoint(tagsMap,fieldsMap,record);
+				point=generateInfluxDBPoint(tagsMap,fieldsMap,record);
 				if(point ==null){
 					continue;
 				}
@@ -93,7 +93,7 @@ public class ETL_MonitorDataToInfluxDB {
 			String fieldsKey="";
 			String tagsvalue="";
 			String tagsKey=""  ;
-			/*����tags��key��value*/
+			/*generate tagsKay and filedsKey*/
 			while(tagsIterator.hasNext()){
 				tagsKey=tagsIterator.next().toString();
 				tagsvalue=tagsObject.getString(tagsKey);
@@ -106,14 +106,14 @@ public class ETL_MonitorDataToInfluxDB {
 					}
 				}
 			}
-			/*����fields��key��va*/
+			/*generate fields value*/
 			Double fieldsValue=Double.valueOf(jsonobject.get("value").toString().replace("?","0").replace("NaN","0"));
 			fieldsMap.put(jsonobject.get("name").toString()+fieldsKey, fieldsValue);
 			
-			/*����timestamp*/
+			/*generate timestamp*/
 			setUTCTime(jsonobject.get("timestamp").toString());
 			
-			/*���뵽influxDB��Point��*/
+			/*insert into influxdb point*/
 			Point.Builder point=Tools.insertToInfluxDBPoint(dbproperties.getProperty("influxDB_mesurement"),Tools.getMilliSecondFromUTCTime(UTCTime),tagsMap,fieldsMap);
 			return point;
 		}
