@@ -7,6 +7,9 @@ import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
+/**
+ * @author lijiahui
+*/
 public class Kafka {
 	static Properties properties=null;
 	static Tools tools=new Tools();
@@ -30,9 +33,9 @@ public class Kafka {
         return producer;
 	}
 	public static KafkaConsumer<String,String> createConsumer(String groupid){
-		//properties.put("group.id", groupid);
+		/**properties.put("group.id", groupid);*/
 		properties.put(ConsumerConfig.GROUP_ID_CONFIG,groupid);
-		KafkaConsumer<String,String> consumer=new KafkaConsumer<>(properties);	
+		final KafkaConsumer<String,String> consumer=new KafkaConsumer<>(properties);	
 		return consumer;
 	}
     public static void insertToKafka(String topic,StringBuffer strbuffer){
@@ -43,7 +46,7 @@ public class Kafka {
 		producer.close();    	
     }    
 	public static void main(String [] args) throws IOException{
-		//insertToKafka("testtopic1",new StringBuffer("bbbb"));
+		/**insertToKafka("testtopic1",new StringBuffer("bbbb"));*/
 	}
 
 }

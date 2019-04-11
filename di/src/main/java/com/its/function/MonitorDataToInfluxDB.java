@@ -19,26 +19,28 @@ import org.influxdb.dto.Point;
 import com.its.common.Kafka;
 import com.its.common.Tools;
 import net.sf.json.JSONObject;
-
-public class ETL_MonitorDataToInfluxDB {
+/**
+ * @author lijiahui
+*/
+public class MonitorDataToInfluxDB {
 	static Properties dbproperties=null;
 	static List<String> tagsList =Arrays.asList("instance","job");
 	static Tools tools=new Tools();
-	static String UTCTime="";
+	static String utcTime="";
 	static InfluxDB influxDB= null;
 	static List<Integer> exclusive_monitor_kpi_hashcode=new ArrayList<Integer>() ;
 	static{
         dbproperties = new Properties();
         try {
-			dbproperties.load(ETL_MonitorDataToInfluxDB.class.getClassLoader().getResourceAsStream("common.properties"));
+			dbproperties.load(MonitorDataToInfluxDB.class.getClassLoader().getResourceAsStream("common.properties"));
 		} catch (IOException e) {
 			e.printStackTrace();
 			
 		}
-        influxDB=Tools.ConnectInfluxDB(dbproperties.getProperty("influxDB_url"), dbproperties.getProperty("influxDB_user"), dbproperties.getProperty("influxDB_password"));
-        String [] exclusive_monitor_kpi=dbproperties.getProperty("exclusive_monitor_kpi").split(",");
-        for (int i=0;i<exclusive_monitor_kpi.length;i++){
-        	exclusive_monitor_kpi_hashcode.add(exclusive_monitor_kpi[i].hashCode());
+        influxDB=Tools.connectInfluxDB(dbproperties.getProperty("influxDB_url"), dbproperties.getProperty("influxDB_user"), dbproperties.getProperty("influxDB_password"));
+        String [] exclusiveMonitorKpi=dbproperties.getProperty("exclusive_monitor_kpi").split(",");
+        for (int i=0;i<exclusiveMonitorKpi.length;i++){
+        	exclusive_monitor_kpi_hashcode.add(exclusiveMonitorKpi[i].hashCode());
         }
 	}
 	public static void getMonitorValueFromKafka(String groupName,String topicName){
@@ -76,8 +78,9 @@ public class ETL_MonitorDataToInfluxDB {
 	}
 	public static boolean filter(String monitorKPI){
 		for(int i=0;i<exclusive_monitor_kpi_hashcode.size();i++){
-			if(monitorKPI.hashCode()==exclusive_monitor_kpi_hashcode.get(i))
+			if(monitorKPI.hashCode()==exclusive_monitor_kpi_hashcode.get(i)){
 				return true;
+			}	
 		}
 		return false;
 	}	
@@ -100,7 +103,7 @@ public class ETL_MonitorDataToInfluxDB {
 					tagsMap.put(tagsKey, tagsvalue);
 				}
 				else{
-					if(!tagsKey.equals("__name__")){
+					if(!"__name__".equals(tagsKey)){
 						fieldsKey="_"+fieldsKey+tagsvalue;
 					}
 				}
@@ -113,7 +116,7 @@ public class ETL_MonitorDataToInfluxDB {
 			setUTCTime(jsonobject.get("timestamp").toString());
 			
 			/*insert into influxdb point*/
-			Point.Builder point=Tools.insertToInfluxDBPoint(dbproperties.getProperty("influxDB_mesurement"),Tools.getMilliSecondFromUTCTime(UTCTime),tagsMap,fieldsMap);
+			Point.Builder point=Tools.insertToInfluxDBPoint(dbproperties.getProperty("influxDB_mesurement"),Tools.getMilliSecondFromUTCTime(utcTime),tagsMap,fieldsMap);
 			return point;
 		}
 		return null;
@@ -122,10 +125,10 @@ public class ETL_MonitorDataToInfluxDB {
 		// TODO Auto-generated method stub
 		getMonitorValueFromKafka("monitorDataGroup","OS");
 	}
-	public static String getUTCTime() {
-		return UTCTime;
+	public static String getutcTime() {
+		return utcTime;
 	}
-	public static void setUTCTime(String UTCTime) {
-		ETL_MonitorDataToInfluxDB.UTCTime = UTCTime;
+	public static void setUTCTime(String utcTime) {
+		MonitorDataToInfluxDB.utcTime = utcTime;
 	}	
 }
