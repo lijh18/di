@@ -30,7 +30,7 @@ public class ETL_MonitorDataToInfluxDB {
 	static{
         dbproperties = new Properties();
         try {
-			dbproperties.load(Kafka.class.getClassLoader().getResourceAsStream("common.properties"));
+			dbproperties.load(ETL_MonitorDataToInfluxDB.class.getClassLoader().getResourceAsStream("common.properties"));
 		} catch (IOException e) {
 			e.printStackTrace();
 			
@@ -45,13 +45,13 @@ public class ETL_MonitorDataToInfluxDB {
 		KafkaConsumer<String,String> consumer=Kafka.createConsumer(UUID.randomUUID().toString());
 		consumer.subscribe(Arrays.asList(topicName));
 		int consumerRecordNum=0;
-		int breakNum=0;
-		BatchPoints batchPoints = BatchPoints.database(dbproperties.getProperty("influxDB_database")).consistency(InfluxDB.ConsistencyLevel.ALL).build();
+		int breakNum=0;		
 		Point.Builder point=null;
-		System.out.println(System.currentTimeMillis());
+		long initialTime=System.currentTimeMillis();
 		Map<String, String> tagsMap = new HashMap<String, String>();
 		Map<String, Object> fieldsMap = new HashMap<String, Object>();
 		while (true) {
+			BatchPoints batchPoints = BatchPoints.database(dbproperties.getProperty("influxDB_database")).consistency(InfluxDB.ConsistencyLevel.ALL).build();
 			ConsumerRecords<String, String> records = consumer.poll(1000);
 			for (ConsumerRecord<String, String> record : records){
 				point=generateInfluxDBPoint(tagsMap,fieldsMap,record);
@@ -59,9 +59,9 @@ public class ETL_MonitorDataToInfluxDB {
 					continue;
 				}
 				consumerRecordNum++;
-				batchPoints.point(point.build());				
-				if(consumerRecordNum>=50000){
-					System.out.println(System.currentTimeMillis());	
+				batchPoints.point(point.build());
+				if(consumerRecordNum>=10000){
+					//System.out.println(System.currentTimeMillis());	
 					Tools.insertToInfluxDB(influxDB,dbproperties.getProperty("influxDB_database"),batchPoints);			
 					consumerRecordNum=0;
 				}
@@ -69,9 +69,8 @@ public class ETL_MonitorDataToInfluxDB {
 				tagsMap.clear();
 				breakNum++;
 			}
-			if(breakNum>=100000){
-				System.out.println(System.currentTimeMillis());	
-				break;
+			if(breakNum%100000<=500){
+				System.out.println("消费"+breakNum+"条数据，共耗时"+(System.currentTimeMillis()-initialTime)/1000+"s");
 			}
 	    }         
 	}

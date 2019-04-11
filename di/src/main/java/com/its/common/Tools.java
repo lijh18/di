@@ -13,6 +13,7 @@ public class Tools {
 	static SimpleDateFormat UTCFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
 	public static InfluxDB ConnectInfluxDB(String url,String user,String password){
 		InfluxDB influxDB = InfluxDBFactory.connect(url,user,password);
+		influxDB.enableBatch(10000, 5000, TimeUnit.MILLISECONDS);
 		return influxDB;
 	}
 	public static Point.Builder insertToInfluxDBPoint(String mesurement,Long MilliSecond,Map<String, String> tagsMap,Map<String, Object> fieldsMap){		
@@ -27,6 +28,7 @@ public class Tools {
 			influxDB.createDatabase(database);
 		}
 		influxDB.write(batchPoints);
+		influxDB.flush();
 	}
 	public static long getMilliSecondFromUTCTime(String UTCTime){		
 		try { 
